@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>VuePress</title>
+    <meta name="generator" content="VuePress 1.5.0">
+    
+    <meta name="description" content="">
+    <link rel="preload" href="/assets/css/0.styles.8fbd8908.css" as="style"><link rel="preload" href="/assets/js/app.1064c404.js" as="script"><link rel="preload" href="/assets/js/2.761db027.js" as="script"><link rel="preload" href="/assets/js/5.5454285c.js" as="script"><link rel="prefetch" href="/assets/js/3.1aeedeb0.js"><link rel="prefetch" href="/assets/js/4.2b7fc900.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.8fbd8908.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-sidebar"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <!----></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><!---->  <!----> </aside> <main class="page"> <div class="theme-default-content content__default"><ul><li><h4 id="_1-定义"><a href="#_1-定义" class="header-anchor">#</a> 1. 定义</h4></li></ul> <p>XSS全称是Cross Site Scripting，指黑客往HTML文件中或者DOM中注入恶意脚本，从而在用户浏览页面时利用注入的恶意脚本对用户实施攻击的一种手段。</p> <ul><li><h4 id="_2-恶意脚本影响的范围"><a href="#_2-恶意脚本影响的范围" class="header-anchor">#</a> 2. 恶意脚本影响的范围</h4></li></ul> <ol><li>窃取Cookie信息：恶意JS脚本通过document.cookie获取Cookie信息，然后通过使用了CORS的请求将数据发送给恶意的服务器。</li> <li>监听用户行为：使用addEventListener接口监听用户的输入。</li> <li>修改DOM：伪造假的登录窗口。</li> <li>在页面内生成浮窗广告。</li></ol> <ul><li><h4 id="_3-三种xss攻击"><a href="#_3-三种xss攻击" class="header-anchor">#</a> 3. 三种XSS攻击</h4></li> <li><h5 id="_1-储存型xss攻击"><a href="#_1-储存型xss攻击" class="header-anchor">#</a> 1. 储存型XSS攻击</h5></li></ul> <p><img src="https://greency.github.io/images-site/youdaoyunbiji/33.png" alt="image"></p> <ol><li>利用漏洞将恶意JS代码提交到数据库中。</li> <li>用户请求包含了恶意JS代码的页面。</li> <li>当用户浏览该页面时，恶意JS代码就会将用户的Cookie信息等数据上传到恶意的服务器。</li></ol> <ul><li><h5 id="_2-反射型xss攻击"><a href="#_2-反射型xss攻击" class="header-anchor">#</a> 2. 反射型XSS攻击</h5></li></ul> <p>在一个反射型XSS攻击中，恶意JS代码属于用户发送给网站请求中的一部分，随后网站又把恶意JS代码返回给用户。</p> <p>服务端代码如下：</p> <div class="language- extra-class"><pre class="language-text"><code>var express = require('express');
+var router = express.Router();
+
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  res.render('index', { title: 'Express',xss:req.query.xss });
+});
+
+module.exports = router;
+</code></pre></div><p>前端代码如下：</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;&lt;%= title %&gt;&lt;/title&gt;
+  &lt;link rel='stylesheet' href='/stylesheets/style.css' /&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;&lt;%= title %&gt;&lt;/h1&gt;
+  &lt;p&gt;Welcome to &lt;%= title %&gt;&lt;/p&gt;
+  &lt;div&gt;
+      &lt;%- xss %&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div><p>当在浏览器输入如下地址时，结果如下：</p> <div class="language- extra-class"><pre class="language-text"><code>http://localhost:3000/?xss=&lt;script&gt;alert('你被xss攻击了')&lt;/script&gt;
+</code></pre></div><p><img src="https://greency.github.io/images-site/youdaoyunbiji/34.png" alt="image"></p> <p>注意：Web服务器不会储存反射型XSS攻击的恶意脚本，这是和储存型XSSS攻击不同的地方。</p> <p>==注意：在现实生活中，黑客经常会通过 QQ 群或者邮件等渠道诱导用户去点击这些恶意链接，所以对于一些链接我们一定要慎之又慎。==</p> <ul><li><h5 id="_3-基于dom的xss攻击"><a href="#_3-基于dom的xss攻击" class="header-anchor">#</a> 3. 基于DOM的XSS攻击</h5></li></ul> <p>基于DOM的XSS攻击是不牵涉到页面Web服务器的。具体来讲，黑客通过各种手段将恶意脚本注入用户的页面中，比如通过网络劫持在页面传输过程中修改HTML页面的内容，这种劫持类型很多，有通过Wifi路由劫持的，有通过本地恶意软件劫持的，它们的共同点是在Web资源传输过程或者用户使用页面的过程中修改Web页面的数据。</p> <ul><li><h4 id="_4-如何防止xss攻击"><a href="#_4-如何防止xss攻击" class="header-anchor">#</a> 4. 如何防止XSS攻击</h4></li> <li><h5 id="_1-服务器对输入的数据进行过滤-转码"><a href="#_1-服务器对输入的数据进行过滤-转码" class="header-anchor">#</a> 1. 服务器对输入的数据进行过滤/转码</h5></li></ul> <div class="language- extra-class"><pre class="language-text"><code>code:&lt;script&gt;alert('你被xss攻击了')&lt;/script&gt;
+
+//过滤后
+code:
+
+//转义后：
+code:&amp;lt;script&amp;gt;alert(&amp;#39;你被xss攻击了&amp;#39;)&amp;lt;/script&amp;gt;
+</code></pre></div><ul><li><h5 id="_2-充分利用csp"><a href="#_2-充分利用csp" class="header-anchor">#</a> 2. 充分利用CSP</h5></li></ul> <blockquote><p>CSP有如下功能：</p></blockquote> <ol><li>限制加载其他域下的资源文件，这样即使黑客插入了一个JS文件，这个JS文件也无法被加载。</li> <li>禁止向第三方域提交数据，这样用户数据也不会外泄。</li> <li>禁止执行内联脚本和未授权的脚本。</li> <li>提供了上报机制，可以帮助我们尽快的发现有哪些XSS攻击。</li></ol> <ul><li><h5 id="_3-使用httponly属性"><a href="#_3-使用httponly属性" class="header-anchor">#</a> 3. 使用HttpOnly属性</h5></li></ul> <p>设置了HttpOnly属性的Cookie无法被document.cookie读取。</p> <p>可以通过HttpOnly属性来保护我们的cookie安全。</p> <p>将Cookie设置为HttpOnly标志，HttpOnly是服务器通过HTTP响应头来设置的：</p> <div class="language- extra-class"><pre class="language-text"><code>set-cookie: NID=189=M8q2FtWbsR8RlcldPVt7qkrqR38LmFY9jUxkKo3-4Bi6Qu_ocNOat7nkYZUTzolHjFnwBw0izgsATSI7TZyiiiaV94qGh-BzEYsNVa7TZmjAYTxYTOM9L_-0CN9ipL6cXi8l6-z41asXtm2uEwcOC5oh9djkffOMhWqQrlnCtOI; expires=Sat, 18-Apr-2020 06:52:22 GMT; path=/; domain=.google.com; HttpOnly
+</code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <!----> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.1064c404.js" defer></script><script src="/assets/js/2.761db027.js" defer></script><script src="/assets/js/5.5454285c.js" defer></script>
+  </body>
+</html>
